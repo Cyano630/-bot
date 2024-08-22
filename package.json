@@ -1,11 +1,11 @@
 {
-    "name": "inukaisan-bot",
+    "name": "inukai-san-bot",
     "version": "1.0.0",
     "description": "Twitter bot that tweets images",
     "main": "index.js",
-    "scripts": {
-      "start": "node index.js"
-    },
+    "scripts": {  //  ← これを追加！
+      "start": "node index.js"  //  ← これを追加！
+    },  //  ← これを追加！
     "dependencies": {
       "twit": "^2.2.11"
     }
