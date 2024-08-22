@@ -1,5 +1,5 @@
 {
-    "name": "犬飼さんbot",
+    "name": "inukaisan-bot",
     "version": "1.0.0",
     "description": "Twitter bot that tweets images",
     "main": "index.js",
