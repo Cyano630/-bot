@@ -85,6 +85,8 @@ fs.readdirSync('./images/single/').forEach(episodeName => {
   });
 
 
+// 1時間ごとに実行するための呪文！
+setInterval(function () { // ← これを追加！
 
   // 1枚の画像と複数枚セットをまとめた配列
   const allImageOptions = [
@@ -106,5 +108,6 @@ fs.readdirSync('./images/single/').forEach(episodeName => {
     // 複数枚セットの場合
     tweetImages(selectedImages);
   }
-}, 60 * 60 * 1000); // 1時間に1回実行 (1000ミリ秒 = 1秒) 
+
+}, 60 * 60 * 1000); // 1時間に1回実行 (1000ミリ秒 = 1秒)  ← これを追加！
 // キュアップ・ラパパ！botさん動いて～～
