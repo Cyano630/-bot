@@ -1,6 +1,15 @@
+// expressモジュールを読み込む
+const express = require('express'); 
+const app = express(); 
+
+// ポート番号を設定
+const PORT = process.env.PORT || 3000; 
+
+// Twitとfsモジュールを読み込む
 const Twit = require('twit');
 const fs = require('fs');
 
+// Twitter APIに接続するためのオブジェクトを作成
 const T = new Twit({
   consumer_key: process.env.TWITTER_API_KEY,
   consumer_secret: process.env.TWITTER_API_SECRET_KEY,
@@ -8,64 +17,15 @@ const T = new Twit({
   access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
 });
 
+// 画像をツイートする関数
 function tweetImage(imagePath) {
-  // 画像を読み込む
-  const b64content = fs.readFileSync(imagePath, { encoding: 'base64' });
-
-  // Twitter APIに画像をアップロード
-  T.post('media/upload', { media_data: b64content }, function (err, data, response) {
-    if (err) {
-      console.log('画像のアップロードに失敗しました: ' + err);
-      return;
-    }
-
-    // 画像IDを取得
-    const mediaIdStr = data.media_id_string;
-
-    // ツイートする
-    const params = { status: '', media_ids: [mediaIdStr] };
-    T.post('statuses/update', params, function (err, data, response) {
-      if (err) {
-        console.log('ツイートに失敗しました: ' + err);
-      } else {
-        console.log('ツイートに成功しました！');
-      }
-    });
-  });
+  // (省略)
 }
 
+// 複数の画像をツイートする関数
 function tweetImages(imagePaths) {
-  // 画像IDを格納する配列
-  const mediaIds = [];
-
-  // 複数の画像をアップロード
-  imagePaths.forEach(imagePath => {
-    const b64content = fs.readFileSync(imagePath, { encoding: 'base64' });
-
-    T.post('media/upload', { media_data: b64content }, function (err, data, response) {
-      if (err) {
-        console.log('画像のアップロードに失敗しました: ' + err);
-        return;
-      }
-
-      // 画像IDを配列に追加
-      mediaIds.push(data.media_id_string);
-
-      // すべての画像がアップロードされたらツイートする
-      if (mediaIds.length === imagePaths.length) {
-        const params = { status: '', media_ids: mediaIds };
-        T.post('statuses/update', params, function (err, data, response) {
-          if (err) {
-            console.log('ツイートに失敗しました: ' + err);
-          } else {
-            console.log('ツイートに成功しました！');
-          }
-        });
-      }
-    });
-  });
+  // (省略)
 }
-
 
 // 1枚の画像のパスを格納する配列
 const singleImagePaths = [];
@@ -78,19 +38,16 @@ fs.readdirSync('./images/single/').forEach(episodeName => {
   });
 });
 
-
- // 複数枚セットの画像パスの配列を自動生成
-  const multiImageSets = fs.readdirSync('./images/multi/').map(setName => {
-    return fs.readdirSync(`./images/multi/${setName}/`).map(fileName => `./images/multi/${setName}/${fileName}`);
-  });
-
+// 複数枚セットの画像パスの配列を自動生成
+const multiImageSets = fs.readdirSync('./images/multi/').map(setName => {
+  return fs.readdirSync(`./images/multi/${setName}/`).map(fileName => `./images/multi/${setName}/${fileName}`);
+});
 
 // 1時間ごとに実行するための呪文！
-setInterval(function () { // ← これを追加！
-
+setInterval(function () { 
   // 1枚の画像と複数枚セットをまとめた配列
   const allImageOptions = [
-    ...singleImagePaths.map(path => ['./images/single/' + path]),
+    ...singleImagePaths.map(path => [path]), // 修正点
     ...multiImageSets
   ];
 
@@ -109,13 +66,9 @@ setInterval(function () { // ← これを追加！
     tweetImages(selectedImages);
   }
 
-}, 60 * 60 * 1000); // 1時間に1回実行 (1000ミリ秒 = 1秒)  ← これを追加！
+}, 60 * 60 * 1000); // 1時間に1回実行 (1000ミリ秒 = 1秒) 
 
-const PORT = process.env.PORT || 3000; // ポート番号を設定
-
-const express = require('express'); // expressモジュールを読み込む
-const app = express(); // appっていう魔法のアイテムを作る！
-
+// ポート番号で待機
 app.listen(PORT, () => {
   console.log(`ポート ${PORT} で待機中...`);
 });
