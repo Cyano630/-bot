@@ -112,6 +112,8 @@ setInterval(function () { // ← これを追加！
 }, 60 * 60 * 1000); // 1時間に1回実行 (1000ミリ秒 = 1秒)  ← これを追加！
 
 const PORT = process.env.PORT || 3000; // ポート番号を設定
-
+app.listen(PORT, () => {
+  console.log(`ポート ${PORT} で待機中...`);
+});
 
 // キュアップ・ラパパ！botさん動いて～～
