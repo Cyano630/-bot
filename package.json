@@ -1,14 +1,14 @@
 {
-    "name": "inukai-san-bot",
-    "version": "1.0.0",
-    "description": "Twitter bot that tweets images",
-    "main": "index.js",
-    "scripts": {
-      "start": "node index.js"
-    },
-   
-    "dependencies": {
-      "express": "^4.18.2", 
-      "twit": "^2.2.11"
-    }
+  "name": "inukaisanbot",
+  "version": "1.0.0",
+  "description": "Twitter bot that tweets images",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js" 
+  },
+  "license": "MIT", //  ここ！ 
+  "dependencies": {
+    "express": "^4.18.2", 
+    "twit": "^2.2.11"
   }
+}
