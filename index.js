@@ -67,7 +67,9 @@ setInterval(function () {
   }
 
 }, 60 * 60 * 1000); // 1時間に1回実行 (1000ミリ秒 = 1秒) 
-
+app.get('/', (req, res) => {
+  res.send('いぬかいさんbot、起動中！'); 
+});
 // ポート番号で待機
 app.listen(PORT, () => {
   console.log(`ポート ${PORT} で待機中...`);
