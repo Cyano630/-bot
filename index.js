@@ -19,12 +19,62 @@ const T = new Twit({
 
 // 画像をツイートする関数
 function tweetImage(imagePath) {
-  // (省略)
+  // 画像を読み込む
+  const b64content = fs.readFileSync(imagePath, { encoding: 'base64' });
+
+  // Twitter APIに画像をアップロード
+  T.post('media/upload', { media_data: b64content }, function (err, data, response) {
+    if (err) {
+      console.log('画像のアップロードに失敗しました: ' + err);
+      return;
+    }
+
+    // 画像IDを取得
+    const mediaIdStr = data.media_id_string;
+
+    // ツイートする
+    const params = { status: '', media_ids: [mediaIdStr] }; // ツイート文を追加
+    T.post('statuses/update', params, function (err, data, response) {
+      if (err) {
+        console.log('ツイートに失敗しました: ' + err);
+      } else {
+        console.log('ツイートに成功しました！');
+      }
+    });
+  });
 }
 
 // 複数の画像をツイートする関数
 function tweetImages(imagePaths) {
-  // (省略)
+  // 画像IDを格納する配列
+  const mediaIds = [];
+
+  // 複数の画像をアップロード
+  imagePaths.forEach(imagePath => {
+    const b64content = fs.readFileSync(imagePath, { encoding: 'base64' });
+
+    T.post('media/upload', { media_data: b64content }, function (err, data, response) {
+      if (err) {
+        console.log('画像のアップロードに失敗しました: ' + err);
+        return;
+      }
+
+      // 画像IDを配列に追加
+      mediaIds.push(data.media_id_string);
+
+      // すべての画像がアップロードされたらツイートする
+      if (mediaIds.length === imagePaths.length) {
+        const params = { status: '', media_ids: mediaIds }; // ツイート文を追加
+        T.post('statuses/update', params, function (err, data, response) {
+          if (err) {
+            console.log('ツイートに失敗しました: ' + err);
+          } else {
+            console.log('ツイートに成功しました！');
+          }
+        });
+      }
+    });
+  });
 }
 
 // 1枚の画像のパスを格納する配列
@@ -47,7 +97,7 @@ const multiImageSets = fs.readdirSync('./images/multi/').map(setName => {
 setInterval(function () { 
   // 1枚の画像と複数枚セットをまとめた配列
   const allImageOptions = [
-    ...singleImagePaths.map(path => [path]), // 修正点
+    ...singleImagePaths.map(path => [path]), 
     ...multiImageSets
   ];
 
@@ -65,8 +115,8 @@ setInterval(function () {
     // 複数枚セットの場合
     tweetImages(selectedImages);
   }
-
 }, 60 * 60 * 1000); // 1時間に1回実行 (1000ミリ秒 = 1秒) 
+
 app.get('/', (req, res) => {
   res.send('いぬかいさんbot、起動中！'); 
 });
