@@ -111,3 +111,5 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`ポート ${PORT} で待機中...`);
 });
+
+// キュアップ・ラパパ。botよ動け！！
