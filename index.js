@@ -79,10 +79,12 @@ fs.readdirSync('./images/single/').forEach(episodeName => {
 
 // multiフォルダ内の画像セットを走査して、すべての画像パスを追加
 fs.readdirSync('./images/multi/').forEach(setName => {
-  fs.readdirSync(`./images/multi/${setName}/`).forEach(fileName => {
-    allImagePaths.push(`./images/multi/${setName}/${fileName}`);
-  });
+  // 各セットの画像パスを配列として追加
+  allImagePaths.push(
+    fs.readdirSync(`./images/multi/${setName}/`).map(fileName => `./images/multi/${setName}/${fileName}`)
+  );
 });
+
 
 // 1時間ごとにランダムな画像をツイートする処理
 setInterval(() => {
@@ -93,8 +95,12 @@ setInterval(() => {
   const imagePath = allImagePaths[randomIndex];
 
   // 画像をツイート
-  tweetImage(imagePath);
-}, 60 * 60 * 1000); 
+  if (Array.isArray(imagePath)) { // 画像パスが配列かどうかで判断
+    tweetImages(imagePath);
+  } else {
+    tweetImage(imagePath);
+  }
+}, 10 * 60 * 1000);
 
 // GETリクエストを受け取ったときに「bot、起動中！」と返す
 app.get('/', (req, res) => {
