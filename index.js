@@ -6,7 +6,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Twitとfsモジュールを読み込む
-const Twit = require('twit');
+const Twit = require('twitter'); // パッケージ名を修正
 const fs = require('fs');
 
 // Twitter APIに接続するためのオブジェクトを作成
@@ -22,14 +22,14 @@ function tweetImage(imagePath) {
   const b64content = fs.readFileSync(imagePath, { encoding: 'base64' });
   T.post('media/upload', { media_data: b64content }, (err, data, response) => {
     if (err) {
-      console.log('画像のアップロードに失敗しました: ' + err);
+      console.error('画像のアップロードに失敗しました:', err); // エラーオブジェクトを出力
       return;
     }
     const mediaIdStr = data.media_id_string;
     const params = { status: 'botからのツイート🐶', media_ids: [mediaIdStr] };
     T.post('statuses/update', params, (err, data, response) => {
       if (err) {
-        console.log('ツイートに失敗しました: ' + err);
+        console.error('ツイートに失敗しました:', err); // エラーオブジェクトを出力
       } else {
         console.log('ツイートに成功しました！');
       }
@@ -46,7 +46,7 @@ function tweetImages(imagePaths) {
     const b64content = fs.readFileSync(imagePath, { encoding: 'base64' });
     T.post('media/upload', { media_data: b64content }, (err, data, response) => {
       if (err) {
-        console.log('画像のアップロードに失敗しました: ' + err);
+        console.error('画像のアップロードに失敗しました:', err); // エラーオブジェクトを出力
         return;
       }
       mediaIds.push(data.media_id_string);
@@ -57,7 +57,7 @@ function tweetImages(imagePaths) {
         const params = { status: 'botからのツイート🐶', media_ids: mediaIds };
         T.post('statuses/update', params, (err, data, response) => {
           if (err) {
-            console.log('ツイートに失敗しました: ' + err);
+            console.error('ツイートに失敗しました:', err); // エラーオブジェクトを出力
           } else {
             console.log('ツイートに成功しました！');
           }
@@ -85,7 +85,6 @@ fs.readdirSync('./images/multi/').forEach(setName => {
   );
 });
 
-
 // 1時間ごとにランダムな画像をツイートする処理
 setInterval(() => {
   // ランダムなインデックスを取得
@@ -111,5 +110,3 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`ポート ${PORT} で待機中...`);
 });
-
-// キュアップ・ラパパ。botよ動け！！
