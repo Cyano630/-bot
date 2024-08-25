@@ -1,9 +1,9 @@
 // expressモジュールを読み込む
-const express = require('express'); 
-const app = express(); 
+const express = require('express');
+const app = express();
 
 // ポート番号を設定
-const PORT = process.env.PORT || 3000; 
+const PORT = process.env.PORT || 3000;
 
 // Twitとfsモジュールを読み込む
 const Twit = require('twit');
@@ -19,22 +19,15 @@ const T = new Twit({
 
 // 画像をツイートする関数
 function tweetImage(imagePath) {
-  // 画像を読み込む
   const b64content = fs.readFileSync(imagePath, { encoding: 'base64' });
-
-  // Twitter APIに画像をアップロード
-  T.post('media/upload', { media_data: b64content }, function (err, data, response) {
+  T.post('media/upload', { media_data: b64content }, (err, data, response) => {
     if (err) {
       console.log('画像のアップロードに失敗しました: ' + err);
       return;
     }
-
-    // 画像IDを取得
     const mediaIdStr = data.media_id_string;
-
-    // ツイートする
-    const params = { status: '', media_ids: [mediaIdStr] }; // ツイート文を追加
-    T.post('statuses/update', params, function (err, data, response) {
+    const params = { status: 'botからのツイート🐶', media_ids: [mediaIdStr] };
+    T.post('statuses/update', params, (err, data, response) => {
       if (err) {
         console.log('ツイートに失敗しました: ' + err);
       } else {
@@ -46,26 +39,23 @@ function tweetImage(imagePath) {
 
 // 複数の画像をツイートする関数
 function tweetImages(imagePaths) {
-  // 画像IDを格納する配列
   const mediaIds = [];
+  let uploadedCount = 0;
 
-  // 複数の画像をアップロード
   imagePaths.forEach(imagePath => {
     const b64content = fs.readFileSync(imagePath, { encoding: 'base64' });
-
-    T.post('media/upload', { media_data: b64content }, function (err, data, response) {
+    T.post('media/upload', { media_data: b64content }, (err, data, response) => {
       if (err) {
         console.log('画像のアップロードに失敗しました: ' + err);
         return;
       }
-
-      // 画像IDを配列に追加
       mediaIds.push(data.media_id_string);
+      uploadedCount++;
 
       // すべての画像がアップロードされたらツイートする
-      if (mediaIds.length === imagePaths.length) {
-        const params = { status: '', media_ids: mediaIds }; // ツイート文を追加
-        T.post('statuses/update', params, function (err, data, response) {
+      if (uploadedCount === imagePaths.length) {
+        const params = { status: 'botからのツイート🐶', media_ids: mediaIds };
+        T.post('statuses/update', params, (err, data, response) => {
           if (err) {
             console.log('ツイートに失敗しました: ' + err);
           } else {
@@ -77,52 +67,41 @@ function tweetImages(imagePaths) {
   });
 }
 
-// 1枚の画像のパスを格納する配列
-const singleImagePaths = [];
+// すべての画像パスを格納する配列
+const allImagePaths = [];
 
-// singleフォルダ内のエピソードフォルダを走査
+// singleフォルダ内の話数フォルダを走査して、すべての画像パスを追加
 fs.readdirSync('./images/single/').forEach(episodeName => {
-  // 各エピソードフォルダ内の画像パスをsingleImagePathsに追加
   fs.readdirSync(`./images/single/${episodeName}/`).forEach(fileName => {
-    singleImagePaths.push(`./images/single/${episodeName}/${fileName}`);
+    allImagePaths.push(`./images/single/${episodeName}/${fileName}`);
   });
 });
 
-// 複数枚セットの画像パスの配列を自動生成
-const multiImageSets = fs.readdirSync('./images/multi/').map(setName => {
-  return fs.readdirSync(`./images/multi/${setName}/`).map(fileName => `./images/multi/${setName}/${fileName}`);
+// multiフォルダ内の画像セットを走査して、すべての画像パスを追加
+fs.readdirSync('./images/multi/').forEach(setName => {
+  fs.readdirSync(`./images/multi/${setName}/`).forEach(fileName => {
+    allImagePaths.push(`./images/multi/${setName}/${fileName}`);
+  });
 });
 
-// 1時間ごとに実行するための呪文！
-setInterval(function () { 
-  // 1枚の画像と複数枚セットをまとめた配列
-  const allImageOptions = [
-    ...singleImagePaths.map(path => [path]), 
-    ...multiImageSets
-  ];
-
+// 1時間ごとにランダムな画像をツイートする処理
+setInterval(() => {
   // ランダムなインデックスを取得
-  const randomIndex = Math.floor(Math.random() * allImageOptions.length);
+  const randomIndex = Math.floor(Math.random() * allImagePaths.length);
 
-  // ランダムに選ばれた画像または画像セット
-  const selectedImages = allImageOptions[randomIndex];
+  // ランダムに選ばれた画像パス
+  const imagePath = allImagePaths[randomIndex];
 
-  // 画像または画像セットをツイート
-  if (selectedImages.length === 1) {
-    // 1枚の画像の場合
-    tweetImage(selectedImages[0]);
-  } else {
-    // 複数枚セットの場合
-    tweetImages(selectedImages);
-  }
-}, 60 * 60 * 1000); // 1時間に1回実行 (1000ミリ秒 = 1秒) 
+  // 画像をツイート
+  tweetImage(imagePath);
+}, 60 * 60 * 1000); 
 
+// GETリクエストを受け取ったときに「bot、起動中！」と返す
 app.get('/', (req, res) => {
-  res.send('いぬかいさんbot、起動中！'); 
+  res.send('bot、起動中！');
 });
+
 // ポート番号で待機
 app.listen(PORT, () => {
   console.log(`ポート ${PORT} で待機中...`);
 });
-
-// キュアップ・ラパパ！botさん動いて～～
