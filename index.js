@@ -100,7 +100,7 @@ setInterval(() => {
   } else {
     tweetImage(imagePath);
   }
-}, 10 * 60 * 1000);
+}, 60 * 60 * 1000);
 
 // GETリクエストを受け取ったときに「bot、起動中！」と返す
 app.get('/', (req, res) => {
